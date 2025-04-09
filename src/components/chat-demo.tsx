@@ -41,44 +41,72 @@ export function ChatDemo() {
     setIsLoading(true)
 
     try {
-      // 调用后端 API
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message: userMessage }),
-      })
+      // 设置请求超时
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒超时
 
-      if (!response.ok) {
-        throw new Error(`API 请求失败: ${response.status}`)
+      try {
+        // 调用后端 API
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message: userMessage }),
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `API 请求失败: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // 添加 AI 回复到聊天
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: prev.length + 1,
+            content: data.answer || "抱歉，我无法生成回答。",
+            sender: "ai",
+          },
+        ]);
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        throw fetchError;
       }
-
-      const data = await response.json()
-
-      // 添加 AI 回复到聊天
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: prev.length + 1,
-          content: data.answer || "抱歉，我无法生成回答。",
-          sender: "ai",
-        },
-      ])
     } catch (error) {
-      console.error('聊天请求失败:', error)
+      console.error('聊天请求失败:', error);
+
+      let errorMessage = '未知错误';
+
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = '请求超时，请稍后再试。';
+        } else {
+          // 处理各种错误类型
+          if (error.message.includes('504') || error.message.includes('超时')) {
+            errorMessage = '服务器响应超时，请稍后再试。';
+          } else {
+            errorMessage = error.message || '发生错误，请稍后再试。';
+          }
+        }
+      }
 
       // 添加错误消息
       setMessages((prev) => [
         ...prev,
         {
           id: prev.length + 1,
-          content: `发生错误: ${(error as Error).message || '未知错误'}`,
+          content: `抱歉，${errorMessage}`,
           sender: "ai",
         },
-      ])
+      ]);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
