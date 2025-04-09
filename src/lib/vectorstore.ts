@@ -30,31 +30,31 @@ const initializePinecone = async () => {
 interface DocumentToSave {
     text: string;
     embedding: number[]; // 或其他向量类型
-    metadata?: Record<string, any>; // 可选的元数据
+    metadata?: Record<string, unknown>; // 使用unknown替代any
   }
-  
-  
+
+
   /**
    * 将带有嵌入的文档存入向量数据库
    * @param documents 包含文本、嵌入和元数据的文档数组
    */
   export async function saveToVectorStore(documents: DocumentToSave[]): Promise<void> {
     console.log(`[vectorstore] 开始存储 ${documents.length} 个文档到向量数据库...`);
-  
+
     // --- 在这里实现连接向量数据库并存储数据的逻辑 ---
-  
+
     // 示例：使用 Pinecone
     /*
     if (!documents || documents.length === 0) {
       console.log('[vectorstore] 没有要存储的文档。');
       return;
     }
-  
+
     try {
       const pineconeClient = await initializePinecone();
       const indexName = process.env.PINECONE_INDEX_NAME || 'my-knowledge-base'; // 从环境变量或默认值获取索引名
       const index = pineconeClient.index(indexName); // 选择索引
-  
+
       // 准备要插入的数据 (Pinecone 需要 id, values, metadata)
       const vectorsToUpsert = documents.map((doc, index) => ({
         id: `${doc.metadata?.fileName || 'doc'}-${Date.now()}-${index}`, // 创建唯一 ID
@@ -64,7 +64,7 @@ interface DocumentToSave {
           ...doc.metadata, // 合并其他元数据
         },
       }));
-  
+
       // 分批上传以避免请求过大 (示例：每批 100 个)
       const batchSize = 100;
       for (let i = 0; i < vectorsToUpsert.length; i += batchSize) {
@@ -72,21 +72,20 @@ interface DocumentToSave {
         console.log(`[vectorstore] 正在上传批次 ${i / batchSize + 1}...`);
         await index.upsert(batch);
       }
-  
+
       console.log(`[vectorstore] ${documents.length} 个文档成功存入 Pinecone 索引 '${indexName}'.`);
-  
+
     } catch (error) {
       console.error("[vectorstore] 存储到 Pinecone 时出错:", error);
       throw error; // 重新抛出错误
     }
     */
-  
+
     // --- 占位符实现 ---
     console.warn("[vectorstore] saveToVectorStore 函数尚未实现！");
     // --- 实现结束 ---
   }
-  
-  
+
+
   // (未来可能添加查询向量数据库的函数)
-  // export async function queryVectorStore(embedding: number[], topK: number): Promise<any[]> { ... }
-  
+  // export async function queryVectorStore(embedding: number[], topK: number): Promise<unknown[]> { ... }
