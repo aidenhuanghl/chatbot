@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface ChatBubbleProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -41,7 +42,13 @@ const ChatBubbleAvatar = React.forwardRef<HTMLDivElement, ChatBubbleAvatarProps>
         {...props}
       >
         {src ? (
-          <img src={src} alt={fallback} className="w-full h-full object-cover" />
+          <Image
+            src={src}
+            alt={fallback}
+            className="w-full h-full object-cover"
+            width={32}
+            height={32}
+          />
         ) : (
           <span className="text-xs font-medium">{fallback}</span>
         )}

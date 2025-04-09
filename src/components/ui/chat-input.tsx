@@ -3,8 +3,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-export interface ChatInputProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
+export type ChatInputProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 
 const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
   ({ className, ...props }, ref) => {

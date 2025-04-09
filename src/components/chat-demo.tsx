@@ -5,7 +5,6 @@ import { Send, Bot, Paperclip, Mic, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   ChatBubble,
-  ChatBubbleAvatar,
   ChatBubbleMessage,
 } from "@/components/ui/chat-bubble"
 import { ChatInput } from "@/components/ui/chat-input"
