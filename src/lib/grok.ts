@@ -13,10 +13,11 @@ const GROK_MODEL = process.env.GROK_MODEL || 'llama3-8b-8192';
 // 添加模拟响应模式，当API不可用时使用
 const USE_MOCK_RESPONSE = process.env.USE_MOCK_RESPONSE === 'true';
 
-// 在代码中显式禁用SSL验证（仅用于开发环境）
-if (process.env.NODE_ENV !== 'production') {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-  console.log('[INFO] 已禁用SSL验证（仅用于开发环境）');
+// 不再在代码中显式禁用SSL验证
+// 注意：在生产环境中禁用SSL验证是不安全的
+console.log(`[INFO] 当前环境: ${process.env.NODE_ENV || '未设置'}`);
+if (process.env.NODE_ENV !== 'production' && process.env.NODE_TLS_REJECT_UNAUTHORIZED === '0') {
+  console.log('[INFO] 开发环境中已禁用SSL验证');
 }
 
 console.log('[INFO] 使用Grok API模式');
@@ -62,7 +63,7 @@ async function fetchWithTimeout(url: string, options: RequestInit, timeout = 100
     // 创建一个新的URL对象来解析URL
     const parsedUrl = new URL(url);
 
-    // 如果是https协议，添加自定义的agent选项
+    // 简化fetch选项，去除不必要的自定义设置
     const fetchOptions = {
       ...options,
       signal,
@@ -157,14 +158,9 @@ export async function getGrokResponse(prompt: string): Promise<string> {
         }
       }
 
-      // 如果是SSL错误或者启用了模拟响应模式，在所有重试失败后返回模拟数据
-      const isSSLError = error instanceof Error &&
-        (error.message.includes('SSL') ||
-         error.message.includes('tlsv1') ||
-         (error as any)?.cause?.code === 'ERR_SSL_TLSV1_UNRECOGNIZED_NAME');
-
-      if (USE_MOCK_RESPONSE || isSSLError) {
-        console.log('[INFO] 检测到SSL错误或模拟模式已启用，返回模拟响应');
+      // 如果启用了模拟响应模式，在所有重试失败后返回模拟数据
+      if (USE_MOCK_RESPONSE) {
+        console.log('[INFO] 模拟模式已启用，返回模拟响应');
         return getMockResponse(prompt);
       }
 
