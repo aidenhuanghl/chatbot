@@ -4,8 +4,8 @@ const nextConfig: NextConfig = {
   /* 配置选项 */
   env: {
     // 默认的API基础URL，可以被环境变量覆盖
-    GROK_API_BASE_URL: 'https://api.groq.com/openai/v1',
-    GROK_MODEL: 'llama3-8b-8192',
+    GROK_API_BASE_URL: 'https://api.x.ai/v1',
+    GROK_MODEL: 'grok-3-mini',
     // 在生产环境中默认禁用模拟响应
     USE_MOCK_RESPONSE: process.env.NODE_ENV === 'production' ? 'false' : 'true',
   },

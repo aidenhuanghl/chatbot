@@ -4,11 +4,11 @@
 // 从环境变量中获取API密钥
 const GROK_API_KEY = process.env.GROK_API_KEY;
 
-// 使用Groq API的端点，这是一个兼容OpenAI API格式的服务
-const GROK_API_BASE_URL = process.env.GROK_API_BASE_URL || 'https://api.groq.com/openai/v1';
+// 使用X.AI (Grok) API的端点
+const GROK_API_BASE_URL = process.env.GROK_API_BASE_URL || 'https://api.x.ai/v1';
 
 // 定义要使用的模型
-const GROK_MODEL = process.env.GROK_MODEL || 'llama3-8b-8192';
+const GROK_MODEL = process.env.GROK_MODEL || 'grok-3-mini';
 
 // 添加模拟响应模式，当API不可用时使用
 const USE_MOCK_RESPONSE = process.env.USE_MOCK_RESPONSE === 'true';

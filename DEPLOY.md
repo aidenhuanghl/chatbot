@@ -19,9 +19,9 @@
    在"Environment Variables"部分，添加以下变量:
 
    ```
-   GROK_API_KEY=你的Grok API密钥
-   GROK_API_BASE_URL=https://api.groq.com/openai/v1
-   GROK_MODEL=llama3-8b-8192
+   GROK_API_KEY=你的X.AI (Grok) API密钥
+   GROK_API_BASE_URL=https://api.x.ai/v1
+   GROK_MODEL=grok-3-mini
    USE_MOCK_RESPONSE=false
    ```
 
