@@ -24,9 +24,9 @@ function getMockResponse(prompt: string): string {
 async function fetchWithTimeout(url: string, options: RequestInit, timeout = 10000) {
   const controller = new AbortController();
   const { signal } = controller;
-  
+
   const timeoutId = setTimeout(() => controller.abort(), timeout);
-  
+
   try {
     const response = await fetch(url, {
       ...options,
@@ -46,11 +46,11 @@ export async function getGrokResponse(prompt: string): Promise<string> {
   if (USE_MOCK_RESPONSE && !GROK_API_KEY) {
     return getMockResponse(prompt);
   }
-  
+
   // 最大重试次数
   const MAX_RETRIES = 2;
   let retries = 0;
-  
+
   while (retries <= MAX_RETRIES) {
     try {
       if (!GROK_API_KEY) {
@@ -61,7 +61,7 @@ export async function getGrokResponse(prompt: string): Promise<string> {
 
       // 使用带超时的fetch
       const response = await fetchWithTimeout(
-        `${GROK_API_BASE_URL}/chat/completions`, 
+        `${GROK_API_BASE_URL}/chat/completions`,
         {
           method: 'POST',
           headers: {
@@ -69,7 +69,7 @@ export async function getGrokResponse(prompt: string): Promise<string> {
             'Authorization': `Bearer ${GROK_API_KEY}`
           },
           body: JSON.stringify({
-            model: 'grok-1',  // 使用Grok-1模型
+            model: 'grok-3-mini-beta',  // 使用Grok-3-mini-beta模型
             messages: [
               { role: 'system', content: '你是一个有帮助的助手，基于提供的上下文回答问题。' },
               { role: 'user', content: prompt }
@@ -101,7 +101,7 @@ export async function getGrokResponse(prompt: string): Promise<string> {
       return data.choices[0]?.message?.content || '无法生成回答';
     } catch (error) {
       console.error(`[ERROR] 调用Grok API失败 (尝试 ${retries + 1}/${MAX_RETRIES + 1}):`, error);
-      
+
       // 如果是超时错误或网络错误，尝试重试
       if ((error instanceof Error && error.name === 'AbortError') ||
           (error instanceof TypeError && error.message.includes('network'))) {
@@ -114,16 +114,16 @@ export async function getGrokResponse(prompt: string): Promise<string> {
           continue;
         }
       }
-      
+
       // 如果启用了模拟响应模式，在所有重试失败后返回模拟数据
       if (USE_MOCK_RESPONSE) {
         return getMockResponse(prompt);
       }
-      
+
       return `生成回答时出错: ${(error as Error).message}`;
     }
   }
-  
+
   // 这行代码理论上不会执行，但TypeScript需要一个返回值
   return '所有API请求尝试均失败';
 }
