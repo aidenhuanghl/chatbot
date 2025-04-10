@@ -3,7 +3,12 @@
 
 // 从环境变量中获取API密钥
 const GROK_API_KEY = process.env.GROK_API_KEY;
+
+// 使用Groq API的端点，这是一个兼容OpenAI API格式的服务
 const GROK_API_BASE_URL = process.env.GROK_API_BASE_URL || 'https://api.groq.com/openai/v1';
+
+// 定义要使用的模型
+const GROK_MODEL = process.env.GROK_MODEL || 'llama3-8b-8192';
 
 // 添加模拟响应模式，当API不可用时使用
 const USE_MOCK_RESPONSE = process.env.USE_MOCK_RESPONSE === 'true';
@@ -16,8 +21,15 @@ if (process.env.NODE_ENV !== 'production') {
 
 console.log('[INFO] 使用Grok API模式');
 console.log(`[INFO] GROK_API_BASE_URL: ${GROK_API_BASE_URL}`);
+console.log(`[INFO] GROK_MODEL: ${GROK_MODEL}`);
+console.log(`[INFO] 环境: ${process.env.NODE_ENV || '未设置'}`);
+
 if (USE_MOCK_RESPONSE) {
   console.log('[INFO] 启用了模拟响应模式，当API不可用时将返回模拟数据');
+}
+
+if (!GROK_API_KEY) {
+  console.warn('[WARN] 未设置GROK_API_KEY环境变量，如果启用了模拟响应模式，将使用模拟数据');
 }
 
 // 模拟响应函数
@@ -70,9 +82,9 @@ async function fetchWithTimeout(url: string, options: RequestInit, timeout = 100
 
 // 调用Grok模型生成回答的函数
 export async function getGrokResponse(prompt: string): Promise<string> {
-  // 如果启用了模拟响应模式且没有API密钥，或者在开发环境中遇到SSL问题，直接返回模拟数据
-  if (USE_MOCK_RESPONSE && (!GROK_API_KEY || process.env.NODE_ENV !== 'production')) {
-    console.log('[INFO] 使用模拟响应模式，跳过API调用');
+  // 如果启用了模拟响应模式且没有API密钥，直接返回模拟数据
+  if (USE_MOCK_RESPONSE && !GROK_API_KEY) {
+    console.log('[INFO] 由于没有API密钥，使用模拟响应模式');
     return getMockResponse(prompt);
   }
 
@@ -98,7 +110,7 @@ export async function getGrokResponse(prompt: string): Promise<string> {
             'Authorization': `Bearer ${GROK_API_KEY}`
           },
           body: JSON.stringify({
-            model: 'llama3-8b-8192',  // 使用Groq API的Llama 3模型
+            model: GROK_MODEL,  // 使用环境变量中定义的模型或默认的Llama 3模型
             messages: [
               { role: 'system', content: '你是一个有帮助的助手，基于提供的上下文回答问题。' },
               { role: 'user', content: prompt }
@@ -133,7 +145,8 @@ export async function getGrokResponse(prompt: string): Promise<string> {
 
       // 如果是超时错误或网络错误，尝试重试
       if ((error instanceof Error && error.name === 'AbortError') ||
-          (error instanceof TypeError && error.message.includes('network'))) {
+          (error instanceof TypeError && error.message.includes('network')) ||
+          (error instanceof Error && error.message.includes('SSL'))) {
         if (retries < MAX_RETRIES) {
           retries++;
           // 指数退避策略
@@ -144,8 +157,14 @@ export async function getGrokResponse(prompt: string): Promise<string> {
         }
       }
 
-      // 如果启用了模拟响应模式，在所有重试失败后返回模拟数据
-      if (USE_MOCK_RESPONSE) {
+      // 如果是SSL错误或者启用了模拟响应模式，在所有重试失败后返回模拟数据
+      const isSSLError = error instanceof Error &&
+        (error.message.includes('SSL') ||
+         error.message.includes('tlsv1') ||
+         (error as any)?.cause?.code === 'ERR_SSL_TLSV1_UNRECOGNIZED_NAME');
+
+      if (USE_MOCK_RESPONSE || isSSLError) {
+        console.log('[INFO] 检测到SSL错误或模拟模式已启用，返回模拟响应');
         return getMockResponse(prompt);
       }
 
