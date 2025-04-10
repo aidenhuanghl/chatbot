@@ -88,7 +88,7 @@ export async function getGrokResponse(prompt: string): Promise<string> {
           const errorData = await response.json();
           console.error('[ERROR] Grok API返回错误:', errorData);
           errorMessage += ` - ${JSON.stringify(errorData)}`;
-        } catch (_) {
+        } catch {
           // 如果无法解析JSON，使用原始错误信息
         }
         throw new Error(errorMessage);
