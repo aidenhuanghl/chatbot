@@ -8,7 +8,7 @@ const GROK_API_KEY = process.env.GROK_API_KEY;
 const GROK_API_BASE_URL = process.env.GROK_API_BASE_URL || 'https://api.x.ai/v1';
 
 // 定义要使用的模型
-const GROK_MODEL = process.env.GROK_MODEL || 'grok-3-mini';
+const GROK_MODEL = process.env.GROK_MODEL || 'grok-3-mini-beta';
 
 // 添加模拟响应模式，当API不可用时使用
 const USE_MOCK_RESPONSE = process.env.USE_MOCK_RESPONSE === 'true';
