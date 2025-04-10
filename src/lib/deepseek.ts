@@ -88,7 +88,7 @@ export async function getDeepSeekResponse(prompt: string): Promise<string> {
           const errorData = await response.json();
           console.error('[ERROR] DeepSeek API返回错误:', errorData);
           errorMessage += ` - ${JSON.stringify(errorData)}`;
-        } catch (e) {
+        } catch (_) {
           // 如果无法解析JSON，使用原始错误信息
         }
         throw new Error(errorMessage);
