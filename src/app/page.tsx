@@ -11,7 +11,7 @@ export default function Home() {
         </h1>
         <ChatDemo />
         <p className="text-center text-gray-500 dark:text-gray-400 text-sm mt-6">
-          © 2024 AI Chat Assistant | 基于 DeepSeek API 构建
+          © 2024 AI Chat Assistant | 基于 Grok AI 构建
         </p>
       </div>
     </main>

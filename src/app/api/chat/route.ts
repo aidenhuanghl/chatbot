@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDeepSeekResponse } from '@/lib/deepseek'; // 导入DeepSeek API函数
+import { getGrokResponse } from '@/lib/grok'; // 导入Grok API函数
 
 // 设置请求超时时间
 const API_TIMEOUT = 25000; // 25秒
@@ -27,18 +27,18 @@ export async function POST(request: NextRequest) {
       console.log('收到用户消息:', userMessage);
 
       // 2. 直接使用用户消息作为上下文
-      console.log('正在准备调用DeepSeek模型...');
+      console.log('正在准备调用Grok模型...');
 
-      // 3. 调用 DeepSeek 模型生成回答
+      // 3. 调用 Grok 模型生成回答
       const prompt = `
         用户问题: ${userMessage}
 
         请提供一个简洁、有帮助的回答。
       `;
 
-      // 调用DeepSeek API函数
-      const aiAnswer = await getDeepSeekResponse(prompt);
-      console.log('DeepSeek回答:', aiAnswer);
+      // 调用Grok API函数
+      const aiAnswer = await getGrokResponse(prompt);
+      console.log('Grok回答:', aiAnswer);
 
       // 4. 返回 AI 的回答给前端
       return NextResponse.json({ success: true, answer: aiAnswer });

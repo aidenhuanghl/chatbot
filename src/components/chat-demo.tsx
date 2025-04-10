@@ -14,7 +14,7 @@ export function ChatDemo() {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      content: "👋 你好！我是AI助手，有什么我可以帮助你的吗？",
+      content: "👋 你好！我是基于Grok AI的智能助手，有什么我可以帮助你的吗？",
       sender: "ai",
     },
   ])
@@ -140,7 +140,7 @@ export function ChatDemo() {
       <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-blue-500 to-purple-600 text-white">
         <div className="flex items-center gap-2">
           <Bot className="h-6 w-6" />
-          <h2 className="text-xl font-semibold">智能助手</h2>
+          <h2 className="text-xl font-semibold">Grok AI 智能助手</h2>
         </div>
       </div>
 
