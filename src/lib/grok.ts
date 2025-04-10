@@ -3,10 +3,16 @@
 
 // 从环境变量中获取API密钥
 const GROK_API_KEY = process.env.GROK_API_KEY;
-const GROK_API_BASE_URL = process.env.GROK_API_BASE_URL || 'https://api.grok.ai/v1';
+const GROK_API_BASE_URL = process.env.GROK_API_BASE_URL || 'https://api.groq.com/openai/v1';
 
 // 添加模拟响应模式，当API不可用时使用
 const USE_MOCK_RESPONSE = process.env.USE_MOCK_RESPONSE === 'true';
+
+// 在代码中显式禁用SSL验证（仅用于开发环境）
+if (process.env.NODE_ENV !== 'production') {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+  console.log('[INFO] 已禁用SSL验证（仅用于开发环境）');
+}
 
 console.log('[INFO] 使用Grok API模式');
 console.log(`[INFO] GROK_API_BASE_URL: ${GROK_API_BASE_URL}`);
@@ -17,7 +23,20 @@ if (USE_MOCK_RESPONSE) {
 // 模拟响应函数
 function getMockResponse(prompt: string): string {
   console.log('[INFO] 使用模拟响应');
-  return `这是一个模拟回复。您的问题是: "${prompt}". 由于API连接问题，我们暂时无法提供实时回答。请稍后再试。`;
+
+  // 提取用户问题，去除提示词
+  const userQuestion = prompt.includes('用户问题:')
+    ? prompt.split('用户问题:')[1].split('请提供')[0].trim()
+    : prompt.trim();
+
+  // 根据不同的问题类型返回不同的模拟回答
+  if (userQuestion.includes('你好') || userQuestion.includes('hello') || userQuestion.includes('hi')) {
+    return `你好！我是一个模拟的AI助手。很高兴与你交流。由于当前处于模拟模式，我的回答能力有限。你可以问我一些简单的问题，我会尽力回答。`;
+  } else if (userQuestion.includes('什么') || userQuestion.includes('what')) {
+    return `这是一个基于人工智能的聊天助手应用。目前处于模拟模式，无法连接到真实AI服务。在实际部署时，这个应用将使用Groq API来提供智能的对话能力。`;
+  } else {
+    return `模拟响应模式已启用。您的问题是: "${userQuestion}"。由于API连接问题，我们暂时无法提供实时回答。请在生产环境中配置正确的API密钥和设置。`;
+  }
 }
 
 // 添加超时控制的fetch函数
@@ -51,8 +70,9 @@ async function fetchWithTimeout(url: string, options: RequestInit, timeout = 100
 
 // 调用Grok模型生成回答的函数
 export async function getGrokResponse(prompt: string): Promise<string> {
-  // 如果启用了模拟响应模式且没有API密钥，直接返回模拟数据
-  if (USE_MOCK_RESPONSE && !GROK_API_KEY) {
+  // 如果启用了模拟响应模式且没有API密钥，或者在开发环境中遇到SSL问题，直接返回模拟数据
+  if (USE_MOCK_RESPONSE && (!GROK_API_KEY || process.env.NODE_ENV !== 'production')) {
+    console.log('[INFO] 使用模拟响应模式，跳过API调用');
     return getMockResponse(prompt);
   }
 
